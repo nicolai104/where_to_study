@@ -3,13 +3,35 @@ use chrono_tz::Asia::Shanghai;
 
 use crate::models::{CampusMetadata, SlotMetadata};
 
+// 教务（SJD）端点默认编译期钉死到正式 HTTPS 域名；`dev-local-endpoints`
+// feature 仅用于本地开发（见 scripts/dev/mock-server.mjs），把全部 SJD 请求
+// 指向 127.0.0.1 的 mock。该 feature 绝不进入默认构建或任何发布命令。
+#[cfg(not(feature = "dev-local-endpoints"))]
 pub const SJD_ORIGIN: &str = "https://jwglweixin.bupt.edu.cn";
+#[cfg(not(feature = "dev-local-endpoints"))]
 pub const SJD_LOGIN_PAGE_URL: &str = "https://jwglweixin.bupt.edu.cn/sjd/#/login";
+#[cfg(not(feature = "dev-local-endpoints"))]
 pub const SJD_REST_CLASSROOM_PAGE_URL: &str = "https://jwglweixin.bupt.edu.cn/sjd/#/restClassroom";
+#[cfg(not(feature = "dev-local-endpoints"))]
 pub const SJD_STUDENT_CURRICULUM_URL: &str =
     "https://jwglweixin.bupt.edu.cn/bjyddx/student/curriculum";
+#[cfg(not(feature = "dev-local-endpoints"))]
 pub const EMPTY_CLASSROOM_LOGIN_URL: &str = "https://jwglweixin.bupt.edu.cn/bjyddx/login";
+#[cfg(not(feature = "dev-local-endpoints"))]
 pub const EMPTY_CLASSROOM_TODAY_URL: &str = "https://jwglweixin.bupt.edu.cn/bjyddx/todayClassrooms";
+
+#[cfg(feature = "dev-local-endpoints")]
+pub const SJD_ORIGIN: &str = "http://127.0.0.1:8787";
+#[cfg(feature = "dev-local-endpoints")]
+pub const SJD_LOGIN_PAGE_URL: &str = "http://127.0.0.1:8787/sjd/#/login";
+#[cfg(feature = "dev-local-endpoints")]
+pub const SJD_REST_CLASSROOM_PAGE_URL: &str = "http://127.0.0.1:8787/sjd/#/restClassroom";
+#[cfg(feature = "dev-local-endpoints")]
+pub const SJD_STUDENT_CURRICULUM_URL: &str = "http://127.0.0.1:8787/bjyddx/student/curriculum";
+#[cfg(feature = "dev-local-endpoints")]
+pub const EMPTY_CLASSROOM_LOGIN_URL: &str = "http://127.0.0.1:8787/bjyddx/login";
+#[cfg(feature = "dev-local-endpoints")]
+pub const EMPTY_CLASSROOM_TODAY_URL: &str = "http://127.0.0.1:8787/bjyddx/todayClassrooms";
 
 pub const SLOT_TIMES: [(&str, &str); 14] = [
     ("08:00", "08:45"),

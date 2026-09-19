@@ -110,7 +110,8 @@ fn validate_sjd_redirect_target(
     if previous_request_count > MAX_SJD_REDIRECTS {
         return Err("SJD redirect limit exceeded");
     }
-    if target.scheme() != "https" {
+    // 正式构建强制 HTTPS；`dev-local-endpoints` 下允许本地 http mock。
+    if target.scheme() != "https" && !cfg!(feature = "dev-local-endpoints") {
         return Err("SJD redirect must keep HTTPS");
     }
     if !target.username().is_empty() || target.password().is_some() {

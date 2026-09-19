@@ -14,6 +14,9 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 default = ["tauri-runtime"]
 tauri-runtime = []
 custom-protocol = ["tauri/custom-protocol"]
+# 仅本地开发：SJD 端点指向 scripts/dev/mock-server.mjs（127.0.0.1:8787）。
+# 不属于 default，任何发布/CI 命令都不得启用；见 test/dev-mock-contract.test.js。
+dev-local-endpoints = []
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }

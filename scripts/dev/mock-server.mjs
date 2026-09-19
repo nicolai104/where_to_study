@@ -29,6 +29,32 @@ const FIXTURES = join(ROOT, 'contracts', 'v1', 'fixtures');
 
 const MOCK_TOKEN = 'mock-token-for-local-development';
 
+// 可选：WTS_MOCK_TERM_START=YYYY-MM-DD（周一）把夹具学期锚到指定开学日，
+// 例如 2026-08-31（秋季）让"今天"落在教学周内、当前周直接显示课程。
+// 不设置则原样返回契约夹具（2025-2026-2 春季，开学 2026-03-02）。
+function anchorAdjust(text) {
+  const anchor = process.env.WTS_MOCK_TERM_START?.trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(anchor ?? '')) {
+    return text;
+  }
+  const date = new Date(`${anchor}T00:00:00Z`);
+  if (Number.isNaN(date.getTime()) || date.getUTCDay() !== 1) {
+    console.warn(`[mock] WTS_MOCK_TERM_START=${anchor} 不是有效周一日期，忽略`);
+    return text;
+  }
+  const year = date.getUTCFullYear();
+  const month = date.getUTCMonth() + 1;
+  const termId = month >= 2 && month <= 7
+    ? `${year - 1}-${year}-2`
+    : `${month === 1 ? year - 1 : year}-${(month === 1 ? year : year) + 1}-1`;
+  const nextDay = new Date(date.getTime() + 86400000).toISOString().slice(0, 10);
+  console.log(`[mock] 学期锚定：term=${termId} 开学周一=${anchor}`);
+  return text
+    .replaceAll('2025-2026-2', termId)
+    .replaceAll('2026-03-02', anchor)
+    .replaceAll('2026-03-03', nextDay);
+}
+
 function fixture(name) {
   return readFileSync(join(FIXTURES, name), 'utf8');
 }
@@ -72,7 +98,7 @@ const server = createServer(async (req, res) => {
     if (week === 'all') {
       sendJson(res, 200, fixture('sjd-curriculum.json'));
     } else {
-      sendJson(res, 200, fixture('sjd-current-week.json'));
+      sendJson(res, 200, anchorAdjust(fixture('sjd-current-week.json')));
     }
     return;
   }
